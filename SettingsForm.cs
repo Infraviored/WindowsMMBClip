@@ -7,6 +7,7 @@ internal sealed class SettingsForm : Form
     private readonly AppSettings _settings;
     private readonly TrackBar _pasteSlider;
     private readonly TrackBar _stabilizeSlider;
+    private readonly CheckBox _startupCheckbox;
     private readonly Label _pasteLabel;
     private readonly Label _stabilizeLabel;
 
@@ -16,7 +17,7 @@ internal sealed class SettingsForm : Form
 
         Text = "WindowsMMBClip Settings";
         AutoSize = true;
-        AutoSizeMode = AutoSizeHeightOnly;
+        AutoSizeMode = AutoSizeMode.GrowAndShrink;
         MinimumSize = new System.Drawing.Size(400, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
@@ -38,7 +39,7 @@ internal sealed class SettingsForm : Form
             Dock = DockStyle.Fill,
             AutoSize = true,
             ColumnCount = 1,
-            RowCount = 6
+            RowCount = 7
         };
 
         // Paste Delay
@@ -56,6 +57,15 @@ internal sealed class SettingsForm : Form
         panel.Controls.Add(_stabilizeSlider);
         panel.Controls.Add(_stabilizeLabel);
 
+        _startupCheckbox = new CheckBox 
+        { 
+            Text = "Start WindowsMMBClip with Windows", 
+            AutoSize = true, 
+            Checked = settings.StartWithWindows,
+            Margin = new Padding(0, 20, 0, 0)
+        };
+        panel.Controls.Add(_startupCheckbox);
+
         var buttonPanel = new FlowLayoutPanel 
         { 
             Dock = DockStyle.Bottom, 
@@ -70,6 +80,7 @@ internal sealed class SettingsForm : Form
         {
             _pasteSlider.Value = 75;
             _stabilizeSlider.Value = 35;
+            _startupCheckbox.Checked = false;
         };
 
         buttonPanel.Controls.Add(closeButton);
@@ -85,11 +96,11 @@ internal sealed class SettingsForm : Form
         {
             _settings.PasteDelay = _pasteSlider.Value;
             _settings.StabilizationDelay = _stabilizeSlider.Value;
+            _settings.StartWithWindows = _startupCheckbox.Checked;
             _settings.Save();
+            StartupManager.SetStartup(_settings.StartWithWindows);
         };
     }
-
-    private void AutoSizeHeightOnly => AutoSizeMode.GrowAndShrink; // Placeholder logic for the instruction
 
     private void UpdateLabels()
     {

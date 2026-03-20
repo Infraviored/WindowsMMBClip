@@ -12,6 +12,7 @@ internal sealed class AppSettings
 
     public int PasteDelay { get; set; } = 75;
     public int StabilizationDelay { get; set; } = 35;
+    public bool StartWithWindows { get; set; } = false;
 
     public static AppSettings Load()
     {

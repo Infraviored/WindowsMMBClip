@@ -10,6 +10,9 @@
     <RootNamespace>WindowsMMBClip</RootNamespace>
     <AssemblyName>WindowsMMBClip</AssemblyName>
     <ApplicationIcon>app.ico</ApplicationIcon>
+    <Version>1.0.0</Version>
+    <Description>Linux-style Primary Selection (MMB Paste) for Windows.</Description>
+    <Authors>Infraviored</Authors>
   </PropertyGroup>
 
   <ItemGroup>

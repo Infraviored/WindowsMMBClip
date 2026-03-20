@@ -23,7 +23,11 @@ internal sealed class TrayAppContext : ApplicationContext
 
         _clipboardWindow.ClipboardUpdated += (_, sequence) => _primaryService.OnClipboardUpdated(sequence);
         _selectionTracker.PrimaryTextDetected += (_, text) => _primaryService.UpdatePrimary(text);
-        _mouseHook.CanHandleMiddleButton = () => _primaryService.CanPastePrimary && !_primaryService.IsPaused;
+        _mouseHook.CanHandleMiddleButton = (x, y) => 
+        {
+            if (_primaryService.IsPaused || !_primaryService.CanPastePrimary) return false;
+            return TargetAnalyzer.IsEditableElementAtPoint(x, y);
+        };
         _mouseHook.MiddleButtonPressed = () => _uiContext.Post(_ => _ = _primaryService.PastePrimaryAsync(), null);
 
         _trayIcon = new NotifyIcon

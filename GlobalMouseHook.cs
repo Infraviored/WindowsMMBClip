@@ -11,7 +11,7 @@ internal sealed class GlobalMouseHook : IDisposable
     private uint _hookThreadId;
     private readonly ManualResetEventSlim _hookStarted = new(false);
 
-    public Func<bool>? CanHandleMiddleButton { get; set; }
+    public Func<int, int, bool>? CanHandleMiddleButton { get; set; }
     public Action? MiddleButtonPressed { get; set; }
 
     public void Start()
@@ -71,7 +71,8 @@ internal sealed class GlobalMouseHook : IDisposable
     {
         if (nCode >= 0 && wParam == (IntPtr)NativeMethods.WM_MBUTTONDOWN)
         {
-            if (CanHandleMiddleButton?.Invoke() == true)
+            var hookStruct = Marshal.PtrToStructure<NativeMethods.MSLLHOOKSTRUCT>(lParam);
+            if (CanHandleMiddleButton?.Invoke(hookStruct.pt.x, hookStruct.pt.y) == true)
             {
                 MiddleButtonPressed?.Invoke();
                 return (IntPtr)1;

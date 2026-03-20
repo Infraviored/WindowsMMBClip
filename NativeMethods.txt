@@ -1,0 +1,4 @@
+IUIAutomation
+IUIAutomationElement
+IUIAutomationCacheRequest
+CUIAutomation8

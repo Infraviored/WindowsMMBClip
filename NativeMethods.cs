@@ -77,6 +77,12 @@ internal static class NativeMethods
         INPUT[] pInputs,
         int cbSize);
 
+    [DllImport("user32.dll")]
+    internal static extern IntPtr WindowFromPoint(POINT Point);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    internal static extern int GetClassName(IntPtr hWnd, System.Text.StringBuilder lpClassName, int nMaxCount);
+
     internal static void SendCtrlV()
     {
         INPUT[] inputs =
@@ -159,6 +165,16 @@ internal static class NativeMethods
     {
         public int x;
         public int y;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct MSLLHOOKSTRUCT
+    {
+        public POINT pt;
+        public uint mouseData;
+        public uint flags;
+        public uint time;
+        public IntPtr dwExtraInfo;
     }
 
     [StructLayout(LayoutKind.Sequential)]

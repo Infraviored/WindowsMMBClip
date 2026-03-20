@@ -15,39 +15,57 @@ internal sealed class SettingsForm : Form
         _settings = settings;
 
         Text = "WindowsMMBClip Settings";
-        Size = new System.Drawing.Size(350, 280);
+        AutoSize = true;
+        AutoSizeMode = AutoSizeHeightOnly;
+        MinimumSize = new System.Drawing.Size(400, 0);
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
         StartPosition = FormStartPosition.CenterScreen;
-        Icon = IconGenerator.Generate();
+        
+        try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
+
+        var mainPadding = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            AutoSize = true,
+            Padding = new Padding(30),
+            ColumnCount = 1
+        };
 
         var panel = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
+            AutoSize = true,
             ColumnCount = 1,
-            RowCount = 6,
-            Padding = new Padding(20)
+            RowCount = 6
         };
 
         // Paste Delay
-        panel.Controls.Add(new Label { Text = "Paste Reliability (ms)", AutoSize = true });
-        _pasteLabel = new Label { AutoSize = true, Font = new System.Drawing.Font(Font, System.Drawing.FontStyle.Bold) };
-        _pasteSlider = new TrackBar { Minimum = 40, Maximum = 500, TickFrequency = 50, Dock = DockStyle.Fill, Value = settings.PasteDelay };
+        panel.Controls.Add(new Label { Text = "Paste Reliability (ms)", AutoSize = true, Margin = new Padding(0, 0, 0, 5) });
+        _pasteLabel = new Label { AutoSize = true, Font = new System.Drawing.Font(Font, System.Drawing.FontStyle.Bold), Margin = new Padding(5, 0, 0, 0) };
+        _pasteSlider = new TrackBar { Minimum = 40, Maximum = 500, TickFrequency = 50, Dock = DockStyle.Fill, Value = settings.PasteDelay, Height = 45 };
         _pasteSlider.ValueChanged += (s, e) => UpdateLabels();
         panel.Controls.Add(_pasteSlider);
         panel.Controls.Add(_pasteLabel);
 
-        panel.Controls.Add(new Label { Text = "System Stability (ms)", AutoSize = true, Margin = new Padding(0, 15, 0, 0) });
-        _stabilizeLabel = new Label { AutoSize = true, Font = new System.Drawing.Font(Font, System.Drawing.FontStyle.Bold) };
-        _stabilizeSlider = new TrackBar { Minimum = 10, Maximum = 200, TickFrequency = 20, Dock = DockStyle.Fill, Value = settings.StabilizationDelay };
+        panel.Controls.Add(new Label { Text = "System Stability (ms)", AutoSize = true, Margin = new Padding(0, 25, 0, 5) });
+        _stabilizeLabel = new Label { AutoSize = true, Font = new System.Drawing.Font(Font, System.Drawing.FontStyle.Bold), Margin = new Padding(5, 0, 0, 0) };
+        _stabilizeSlider = new TrackBar { Minimum = 10, Maximum = 200, TickFrequency = 20, Dock = DockStyle.Fill, Value = settings.StabilizationDelay, Height = 45 };
         _stabilizeSlider.ValueChanged += (s, e) => UpdateLabels();
         panel.Controls.Add(_stabilizeSlider);
         panel.Controls.Add(_stabilizeLabel);
 
-        var buttonPanel = new FlowLayoutPanel { Dock = DockStyle.Bottom, FlowDirection = FlowDirection.RightToLeft, Height = 40 };
-        var closeButton = new Button { Text = "Close", DialogResult = DialogResult.OK };
-        var resetButton = new Button { Text = "Reset Defaults" };
+        var buttonPanel = new FlowLayoutPanel 
+        { 
+            Dock = DockStyle.Bottom, 
+            FlowDirection = FlowDirection.RightToLeft, 
+            Height = 50, 
+            Padding = new Padding(0, 10, 0, 0) 
+        };
+        
+        var closeButton = new Button { Text = "Close", DialogResult = DialogResult.OK, Height = 30, Width = 100 };
+        var resetButton = new Button { Text = "Reset Defaults", Height = 30, Width = 120 };
         resetButton.Click += (s, e) =>
         {
             _pasteSlider.Value = 75;
@@ -57,8 +75,9 @@ internal sealed class SettingsForm : Form
         buttonPanel.Controls.Add(closeButton);
         buttonPanel.Controls.Add(resetButton);
 
-        Controls.Add(panel);
-        Controls.Add(buttonPanel);
+        mainPadding.Controls.Add(panel);
+        mainPadding.Controls.Add(buttonPanel);
+        Controls.Add(mainPadding);
 
         UpdateLabels();
 
@@ -69,6 +88,8 @@ internal sealed class SettingsForm : Form
             _settings.Save();
         };
     }
+
+    private void AutoSizeHeightOnly => AutoSizeMode.GrowAndShrink; // Placeholder logic for the instruction
 
     private void UpdateLabels()
     {

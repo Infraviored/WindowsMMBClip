@@ -34,7 +34,7 @@ internal sealed class TrayAppContext : ApplicationContext
 
         _trayIcon = new NotifyIcon
         {
-            Icon = IconGenerator.Generate(),
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
             Text = "Windows MMB Clip",
             Visible = true,
             ContextMenuStrip = BuildMenu()

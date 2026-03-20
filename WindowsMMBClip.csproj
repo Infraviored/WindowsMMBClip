@@ -9,6 +9,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>WindowsMMBClip</RootNamespace>
     <AssemblyName>WindowsMMBClip</AssemblyName>
+    <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

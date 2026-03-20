@@ -30,14 +30,19 @@ internal sealed class SettingsForm : Form
         {
             Dock = DockStyle.Fill,
             AutoSize = true,
-            Padding = new Padding(30),
-            ColumnCount = 1
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Padding = new Padding(20),
+            ColumnCount = 1,
+            RowCount = 2
         };
+        mainPadding.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        mainPadding.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
         var panel = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
             ColumnCount = 1,
             RowCount = 7
         };
@@ -50,7 +55,7 @@ internal sealed class SettingsForm : Form
         panel.Controls.Add(_pasteSlider);
         panel.Controls.Add(_pasteLabel);
 
-        panel.Controls.Add(new Label { Text = "System Stability (ms)", AutoSize = true, Margin = new Padding(0, 25, 0, 5) });
+        panel.Controls.Add(new Label { Text = "System Stability (ms)", AutoSize = true, Margin = new Padding(0, 20, 0, 5) });
         _stabilizeLabel = new Label { AutoSize = true, Font = new System.Drawing.Font(Font, System.Drawing.FontStyle.Bold), Margin = new Padding(5, 0, 0, 0) };
         _stabilizeSlider = new TrackBar { Minimum = 10, Maximum = 200, TickFrequency = 20, Dock = DockStyle.Fill, Value = settings.StabilizationDelay, Height = 45 };
         _stabilizeSlider.ValueChanged += (s, e) => UpdateLabels();
@@ -62,16 +67,17 @@ internal sealed class SettingsForm : Form
             Text = "Start WindowsMMBClip with Windows", 
             AutoSize = true, 
             Checked = settings.StartWithWindows,
-            Margin = new Padding(0, 20, 0, 0)
+            Margin = new Padding(0, 20, 0, 10)
         };
         panel.Controls.Add(_startupCheckbox);
 
         var buttonPanel = new FlowLayoutPanel 
         { 
-            Dock = DockStyle.Bottom, 
+            Dock = DockStyle.Fill, 
             FlowDirection = FlowDirection.RightToLeft, 
-            Height = 50, 
-            Padding = new Padding(0, 10, 0, 0) 
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            Margin = new Padding(0, 10, 0, 0) 
         };
         
         var closeButton = new Button { Text = "Close", DialogResult = DialogResult.OK, Height = 30, Width = 100 };

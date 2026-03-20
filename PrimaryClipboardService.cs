@@ -10,10 +10,8 @@ internal sealed class PrimaryClipboardService
     private readonly AppSettings _settings;
     private bool _bridgeActive;
     private uint _lastMirroredClipboardSequence;
-    private IDataObject? _systemClipboardDataObject;
 
     public string? PrimaryText { get; private set; }
-    public string? SystemClipboardText { get; private set; }
     public bool IsPaused { get; set; }
 
     public PrimaryClipboardService(AppSettings settings)
@@ -33,11 +31,6 @@ internal sealed class PrimaryClipboardService
         PrimaryText = normalized;
     }
 
-    public void ClearPrimary()
-    {
-        PrimaryText = null;
-    }
-
     public void OnClipboardUpdated(uint sequence)
     {
         if (_bridgeActive || sequence == 0 || sequence == _lastMirroredClipboardSequence) return;
@@ -50,21 +43,6 @@ internal sealed class PrimaryClipboardService
 
         try
         {
-            _systemClipboardDataObject = RetryClipboard(() => Clipboard.GetDataObject());
-
-            if (RetryClipboard(() => Clipboard.ContainsText(TextDataFormat.UnicodeText)))
-            {
-                SystemClipboardText = RetryClipboard(() => Clipboard.GetText(TextDataFormat.UnicodeText));
-            }
-            else if (RetryClipboard(() => Clipboard.ContainsText()))
-            {
-                SystemClipboardText = RetryClipboard(() => Clipboard.GetText());
-            }
-            else
-            {
-                SystemClipboardText = null;
-            }
-
             _lastMirroredClipboardSequence = observedSequence ?? NativeMethods.GetClipboardSequenceNumber();
         }
         catch (ExternalException) { }

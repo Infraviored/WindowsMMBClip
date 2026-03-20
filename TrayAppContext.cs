@@ -49,12 +49,10 @@ internal sealed class TrayAppContext : ApplicationContext
     {
         var menu = new ContextMenuStrip();
 
-        menu.Items.Add("Show Buffers", null, (_, _) => ShowBuffers());
         menu.Items.Add("Settings...", null, (_, _) => ShowSettings());
         _pauseItem = new ToolStripMenuItem("Pause capture");
         _pauseItem.Click += (_, _) => TogglePause();
         menu.Items.Add(_pauseItem);
-        menu.Items.Add("Clear Primary", null, (_, _) => _primaryService.ClearPrimary());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Exit", null, (_, _) => ExitThread());
 
@@ -72,24 +70,6 @@ internal sealed class TrayAppContext : ApplicationContext
         _primaryService.IsPaused = !_primaryService.IsPaused;
         _pauseItem.Checked = _primaryService.IsPaused;
         _pauseItem.Text = _primaryService.IsPaused ? "Resume capture" : "Pause capture";
-    }
-
-    private void ShowBuffers()
-    {
-        string primary = Truncate(_primaryService.PrimaryText);
-        string systemClipboard = Truncate(_primaryService.SystemClipboardText);
-
-        MessageBox.Show(
-            $"Primary buffer (middle-click):\r\n{primary}\r\n\r\nSystem clipboard (Ctrl+C / Ctrl+V):\r\n{systemClipboard}",
-            $"Windows MMB Clip{(_primaryService.IsPaused ? " [Paused]" : string.Empty)}",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
-    }
-
-    private static string Truncate(string? text)
-    {
-        if (string.IsNullOrEmpty(text)) return "<empty>";
-        return text.Length <= 2000 ? text : text[..2000] + "\r\n...[truncated]";
     }
 
     protected override void ExitThreadCore()

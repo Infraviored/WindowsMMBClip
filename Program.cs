@@ -1,14 +1,14 @@
 using System.Threading;
 using System.Windows.Forms;
 
-namespace UbuntuPrimaryClipboard;
+namespace WindowsMMBClip;
 
 internal static class Program
 {
     [STAThread]
     private static void Main()
     {
-        using var mutex = new Mutex(true, "UbuntuPrimaryClipboard.Singleton", out bool isNewInstance);
+        using var mutex = new Mutex(true, "WindowsMMBClip.Singleton", out bool isNewInstance);
         if (!isNewInstance)
         {
             return;

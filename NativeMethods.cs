@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace UbuntuPrimaryClipboard;
+namespace WindowsMMBClip;
 
 internal static class NativeMethods
 {

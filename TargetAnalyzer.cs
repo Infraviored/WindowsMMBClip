@@ -3,7 +3,7 @@ using System.Text;
 using Windows.Win32.UI.Accessibility;
 using Windows.Win32.Foundation;
 
-namespace UbuntuPrimaryClipboard;
+namespace WindowsMMBClip;
 
 internal static class TargetAnalyzer
 {

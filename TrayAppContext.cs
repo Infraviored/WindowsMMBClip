@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Windows.Forms;
 
-namespace UbuntuPrimaryClipboard;
+namespace WindowsMMBClip;
 
 internal sealed class TrayAppContext : ApplicationContext
 {
@@ -11,12 +11,14 @@ internal sealed class TrayAppContext : ApplicationContext
     private readonly SelectionTracker _selectionTracker;
     private readonly GlobalMouseHook _mouseHook;
     private readonly PrimaryClipboardService _primaryService;
+    private readonly AppSettings _settings;
     private ToolStripMenuItem _pauseItem = null!;
 
     public TrayAppContext()
     {
         _uiContext = SynchronizationContext.Current ?? new WindowsFormsSynchronizationContext();
-        _primaryService = new PrimaryClipboardService();
+        _settings = AppSettings.Load();
+        _primaryService = new PrimaryClipboardService(_settings);
         _clipboardWindow = new ClipboardListenerWindow();
         _selectionTracker = new SelectionTracker();
         _mouseHook = new GlobalMouseHook();
@@ -32,8 +34,8 @@ internal sealed class TrayAppContext : ApplicationContext
 
         _trayIcon = new NotifyIcon
         {
-            Icon = System.Drawing.SystemIcons.Application,
-            Text = "Ubuntu Primary Clipboard",
+            Icon = IconGenerator.Generate(),
+            Text = "Windows MMB Clip",
             Visible = true,
             ContextMenuStrip = BuildMenu()
         };
@@ -46,14 +48,23 @@ internal sealed class TrayAppContext : ApplicationContext
     private ContextMenuStrip BuildMenu()
     {
         var menu = new ContextMenuStrip();
+
         menu.Items.Add("Show Buffers", null, (_, _) => ShowBuffers());
+        menu.Items.Add("Settings...", null, (_, _) => ShowSettings());
         _pauseItem = new ToolStripMenuItem("Pause capture");
         _pauseItem.Click += (_, _) => TogglePause();
         menu.Items.Add(_pauseItem);
         menu.Items.Add("Clear Primary", null, (_, _) => _primaryService.ClearPrimary());
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Exit", null, (_, _) => ExitThread());
+
         return menu;
+    }
+
+    private void ShowSettings()
+    {
+        using var form = new SettingsForm(_settings);
+        form.ShowDialog();
     }
 
     private void TogglePause()
@@ -70,7 +81,7 @@ internal sealed class TrayAppContext : ApplicationContext
 
         MessageBox.Show(
             $"Primary buffer (middle-click):\r\n{primary}\r\n\r\nSystem clipboard (Ctrl+C / Ctrl+V):\r\n{systemClipboard}",
-            $"Ubuntu Primary Clipboard{(_primaryService.IsPaused ? " [Paused]" : string.Empty)}",
+            $"Windows MMB Clip{(_primaryService.IsPaused ? " [Paused]" : string.Empty)}",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information);
     }

@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 
-namespace UbuntuPrimaryClipboard;
+namespace WindowsMMBClip;
 
 internal sealed class GlobalMouseHook : IDisposable
 {
@@ -24,7 +24,7 @@ internal sealed class GlobalMouseHook : IDisposable
         _hookThread = new Thread(HookThreadMain)
         {
             IsBackground = true,
-            Name = "UbuntuPrimaryClipboard.MouseHook"
+            Name = "WindowsMMBClip.MouseHook"
         };
         _hookThread.SetApartmentState(ApartmentState.STA);
         _hookThread.Start();

@@ -2,11 +2,12 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace UbuntuPrimaryClipboard;
+namespace WindowsMMBClip;
 
 internal sealed class PrimaryClipboardService
 {
     private readonly SemaphoreSlim _pasteGate = new(1, 1);
+    private readonly AppSettings _settings;
     private bool _bridgeActive;
     private uint _lastMirroredClipboardSequence;
     private IDataObject? _systemClipboardDataObject;
@@ -14,6 +15,11 @@ internal sealed class PrimaryClipboardService
     public string? PrimaryText { get; private set; }
     public string? SystemClipboardText { get; private set; }
     public bool IsPaused { get; set; }
+
+    public PrimaryClipboardService(AppSettings settings)
+    {
+        _settings = settings;
+    }
 
     public bool CanPastePrimary => !string.IsNullOrEmpty(PrimaryText);
 
@@ -99,15 +105,15 @@ internal sealed class PrimaryClipboardService
                 RetryClipboard(() => Clipboard.SetDataObject(primaryData, false));
                 NativeMethods.SendCtrlV();
                 
-                // Optimized delays for higher throughput
-                await Task.Delay(75).ConfigureAwait(true);
+                // Use user-defined delays from settings
+                await Task.Delay(_settings.PasteDelay).ConfigureAwait(true);
 
                 if (backupDataObject != null)
                 {
                     RetryClipboard(() => Clipboard.SetDataObject(backupDataObject, true));
                 }
 
-                await Task.Delay(35).ConfigureAwait(true);
+                await Task.Delay(_settings.StabilizationDelay).ConfigureAwait(true);
             }
             finally
             {

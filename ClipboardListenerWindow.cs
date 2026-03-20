@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace UbuntuPrimaryClipboard;
+namespace WindowsMMBClip;
 
 internal sealed class ClipboardListenerWindow : NativeWindow, IDisposable
 {
@@ -12,7 +12,7 @@ internal sealed class ClipboardListenerWindow : NativeWindow, IDisposable
     {
         CreateHandle(new CreateParams
         {
-            Caption = "UbuntuPrimaryClipboardMessageWindow"
+            Caption = "WindowsMMBClipMessageWindow"
         });
 
         if (!NativeMethods.AddClipboardFormatListener(Handle))

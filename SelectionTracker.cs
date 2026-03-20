@@ -3,7 +3,7 @@ using System.Text;
 using System.Windows.Automation;
 using System.Windows.Forms;
 
-namespace UbuntuPrimaryClipboard;
+namespace WindowsMMBClip;
 
 internal sealed class SelectionTracker : IDisposable
 {

@@ -99,14 +99,15 @@ internal sealed class PrimaryClipboardService
                 RetryClipboard(() => Clipboard.SetDataObject(primaryData, false));
                 NativeMethods.SendCtrlV();
                 
-                await Task.Delay(125).ConfigureAwait(true);
+                // Optimized delays for higher throughput
+                await Task.Delay(75).ConfigureAwait(true);
 
                 if (backupDataObject != null)
                 {
                     RetryClipboard(() => Clipboard.SetDataObject(backupDataObject, true));
                 }
 
-                await Task.Delay(50).ConfigureAwait(true);
+                await Task.Delay(35).ConfigureAwait(true);
             }
             finally
             {

@@ -11,6 +11,14 @@ internal static class TargetAnalyzer
     private static readonly IUIAutomation _automation;
     private static readonly IUIAutomationCacheRequest _cacheRequest;
 
+    // Spatial-Temporal Cache to prevent lag when spamming clicks
+    private static int _lastX = -1;
+    private static int _lastY = -1;
+    private static bool _lastResult;
+    private static DateTime _lastCheckTime = DateTime.MinValue;
+    private const int SpatialJitter = 2; // Allow 2 pixels of movement
+    private static readonly TimeSpan CacheExpiry = TimeSpan.FromMilliseconds(500);
+
     static TargetAnalyzer()
     {
         _automation = (IUIAutomation)new CUIAutomation8();
@@ -26,6 +34,29 @@ internal static class TargetAnalyzer
 
     public static bool IsEditableElementAtPoint(int x, int y)
     {
+        // 1. Check Spatial-Temporal Cache (Avoids "spam" lag)
+        // If we clicked here recently, reuse the result without calling COM.
+        TimeSpan timeSinceLast = DateTime.Now - _lastCheckTime;
+        if (timeSinceLast < CacheExpiry && 
+            Math.Abs(x - _lastX) <= SpatialJitter && 
+            Math.Abs(y - _lastY) <= SpatialJitter)
+        {
+            return _lastResult;
+        }
+
+        bool result = PerformContextCheck(x, y);
+
+        // Update cache
+        _lastX = x;
+        _lastY = y;
+        _lastResult = result;
+        _lastCheckTime = DateTime.Now;
+
+        return result;
+    }
+
+    private static bool PerformContextCheck(int x, int y)
+    {
         // STAGE 1: Native Win32 Fast-Path & Terminal Bypass
         var pt = new NativeMethods.POINT { x = x, y = y };
         IntPtr hwnd = NativeMethods.WindowFromPoint(pt);
@@ -38,7 +69,6 @@ internal static class TargetAnalyzer
                 string className = classNameBuilder.ToString();
 
                 // Terminal Bypass (Fast-Fail)
-                // Prevents double-pasting in modern and legacy terminals that handle MMB natively.
                 if (className == "ConsoleWindowClass" || 
                     className == "CASCADIA_HOSTING_WINDOW_CLASS" || 
                     className == "PuTTY" || 
@@ -48,7 +78,6 @@ internal static class TargetAnalyzer
                 }
 
                 // Native Edit Controls (Fast-Success)
-                // Instant Win32 resolution for standard fields, bypassing COM entirely.
                 if (className == "EDIT" || 
                     className == "RichEdit20W" || 
                     className == "RichEdit50W")
@@ -70,10 +99,6 @@ internal static class TargetAnalyzer
             }
 
             // STAGE 3: The Decision Matrix
-            
-            // Extract cached properties. If a property is unsupported, COM returns a COMException or a NotSupported value. 
-            // We must handle casting safely. GetCachedPropertyValue returns an object.
-            
             object objControlType = element.GetCachedPropertyValue((UIA_PROPERTY_ID)30003);
             object objIsFocusable = element.GetCachedPropertyValue((UIA_PROPERTY_ID)30009);
             object objIsPassword = element.GetCachedPropertyValue((UIA_PROPERTY_ID)30019);
@@ -82,7 +107,6 @@ internal static class TargetAnalyzer
             bool isFocusable = objIsFocusable is bool b1 && b1;
             bool isPassword = objIsPassword is bool b2 && b2;
             
-            // 50004 = Edit, 50030 = Document
             bool isTextControl = (controlType == 50004 || controlType == 50030);
 
             if (!isFocusable || isPassword || !isTextControl)
@@ -90,7 +114,6 @@ internal static class TargetAnalyzer
                 return false;
             }
 
-            // If it has a Value pattern, ensure it's not explicitly marked read-only.
             object objHasValue = element.GetCachedPropertyValue((UIA_PROPERTY_ID)30043);
             if (objHasValue is bool hasValue && hasValue)
             {
@@ -105,7 +128,6 @@ internal static class TargetAnalyzer
         }
         catch
         {
-            // If COM fails or times out, fail safely and yield the click to the OS.
             return false;
         }
     }

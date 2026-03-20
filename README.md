@@ -38,7 +38,7 @@ If you find that the application pastes the wrong text in slow environments (lik
 Requires **.NET 8 SDK**.
 
 ```bash
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true
+dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
 ```
 
 ## 📜 License
